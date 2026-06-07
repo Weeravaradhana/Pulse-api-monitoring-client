@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    --color-blue-50:  #eff6ff;
+    --color-blue-100: #dbeafe;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    --color-blue-900: #1e3a8a;
+
+    --sidebar-bg: #0f172a;
+    --sidebar-active: #1e3a8a;
+    --sidebar-hover: #1e293b;
+    --sidebar-text: #94a3b8;
+    --sidebar-text-active: #f1f5f9;
+
+    --transition-fast: 150ms;
+    --transition-base: 250ms;
+    --transition-slow: 400ms;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: var(--font-sans), serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    @apply bg-slate-50 text-slate-900;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-300;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.skeleton {
+    background: linear-gradient(
+            90deg,
+            #f1f5f9 25%,
+            #e2e8f0 50%,
+            #f1f5f9 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    @apply rounded-lg;
+}
+
+.card {
+    @apply bg-white rounded-2xl border border-slate-100 shadow-xs;
+}
+
+.card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-slate-200;
+}
+
+.btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium rounded-xl px-5 py-2.5 transition-all duration-150 shadow-xs hover:shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-xs disabled:active:scale-100;
+}
+
+.btn-secondary {
+    @apply bg-white hover:bg-slate-50 text-slate-700 font-medium rounded-xl px-5 py-2.5 border border-slate-200 hover:border-slate-300 transition-all duration-150 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+    @apply bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-medium rounded-xl px-5 py-2.5 transition-all duration-150 shadow-xs hover:shadow-md active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.btn-ghost {
+    @apply text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium rounded-xl px-3 py-2 transition-all duration-150 active:scale-95;
+}
+
+
+.input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all duration-150;
+}
+
+.input-error {
+    @apply border-rose-300 focus:ring-rose-500/20 focus:border-rose-400;
+}
+
+.label {
+    @apply text-sm font-medium text-slate-700 mb-1.5 block;
+}
+
+.status-pulse-green {
+    @apply relative;
+}
+
+.status-pulse-green::before {
+    content: '';
+    @apply absolute inset-0 rounded-full bg-emerald-400 opacity-75;
+    animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.status-pulse-red::before {
+    content: '';
+    @apply absolute inset-0 rounded-full bg-rose-400 opacity-75;
+    animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.page-enter {
+    animation: slideInUp 0.3s ease-out;
+}
+
+.fade-in {
+    animation: fadeIn 0.25s ease-out;
+}
+
+.slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.mono {
+    font-family: var(--font-mono), serif;
+}
+
+.data-table {
+    @apply w-full text-sm;
+}
+
+.data-table th {
+    @apply text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3 text-left bg-slate-50/80 border-b border-slate-100;
+}
+
+.data-table td {
+    @apply px-4 py-3.5 border-b border-slate-50 text-slate-700;
+}
+
+.data-table tr:last-child td {
+    @apply border-b-0;
+}
+
+.data-table tbody tr {
+    @apply transition-colors duration-100 hover:bg-slate-50/70;
+}
+
+.sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer select-none;
+}
+
+.sidebar-item-inactive {
+    @apply text-slate-400 hover:text-slate-200 hover:bg-slate-800;
+}
+
+.sidebar-item-active {
+    @apply text-white bg-indigo-600/20 border border-indigo-500/30;
+}
+
+.tooltip {
+    @apply invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute z-50 bg-slate-900 text-white text-xs rounded-lg px-2.5 py-1.5 whitespace-nowrap transition-all duration-150 pointer-events-none;
+}
+
+.code-text {
+    font-family: var(--font-mono), serif;
+    @apply text-xs bg-slate-100 text-slate-700 rounded-md px-1.5 py-0.5;
+}
+
+.recharts-tooltip-wrapper {
+    @apply !outline-hidden;
+}
+
+.recharts-default-tooltip {
+    @apply !rounded-xl !border !border-slate-100 !shadow-lg !bg-white !text-sm;
+}
+
+.recharts-tooltip-label {
+    @apply !text-slate-600 !font-medium !text-xs !mb-1;
+}
+
+*:focus-visible {
+    @apply outline-hidden ring-2 ring-indigo-500 ring-offset-2;
+}
