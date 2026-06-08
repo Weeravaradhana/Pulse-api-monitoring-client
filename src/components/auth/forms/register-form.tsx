@@ -10,11 +10,15 @@ import { FormField } from "../form-field";
 import { PasswordStrengthMeter } from "../password-strength";
 import { SuccessToast } from "../success-toast";
 import Cookies from 'js-cookie';
+import {apiClient} from "@/lib/axios/api-client";
+import {AxiosError} from "axios";
+import {ApiErrorResponse} from "@/types/api-response";
 
 export function RegisterForm() {
     const router = useRouter();
     const [showToast, setShowToast] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
 
     const {
         register,
@@ -37,12 +41,45 @@ export function RegisterForm() {
 
     const passwordValue = watch("password", "");
 
-    const onSubmit = async () => {
+    const onSubmit = async (data: RegisterSchema) => {
         setIsSubmitting(true);
-        Cookies.set("registration_intent", "true", { expires: 1/288, sameSite: "strict" })
-        await new Promise((r) => setTimeout(r, 1800));
-        setShowToast(true);
-        setTimeout(() => router.push("/verify-otp"), 2200);
+        setError("");
+
+        try {
+            const response = await apiClient.post("/auth/register", {
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                password: data.password,
+                terms: data.terms
+
+            });
+
+            if (response.status === 201 || response.status === 200){
+                const userId = response.data.data?.userId;
+                Cookies.set("registration_intent", "true", { expires: 1/288, sameSite: "strict" });
+                setShowToast(true);
+                setTimeout(() => router.push(`/verify-otp?userId=${userId}`), 2200);
+            }
+        }catch (error: unknown){
+            if (error instanceof AxiosError && error.response){
+               const errorData = error.response.data as ApiErrorResponse;
+
+               if (error.response.status === 409){
+                   setError("Email already exists. Please use a different email.");
+               }else {
+                   const serverMessage = Array.isArray(errorData.message)
+                   ? errorData.message[0]
+                   : errorData.message;
+
+                   setError(serverMessage ||  "Registration failed. Try again.");
+               }
+            }
+        }finally {
+            setIsSubmitting(false)
+        }
+
+
     };
 
     return (
@@ -155,7 +192,7 @@ export function RegisterForm() {
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0"
+                    className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0 hover:cursor-pointer"
                 >
                     {isSubmitting ? (
                         <>
