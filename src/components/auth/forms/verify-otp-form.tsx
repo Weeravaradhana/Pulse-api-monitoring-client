@@ -1,18 +1,20 @@
 'use client'
 
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import React, {useState} from "react";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {SuccessToast} from "@/components/auth/success-toast";
 import {FormField} from "@/components/auth/form-field";
 import {ChevronLeft, KeyRound, Loader2} from "lucide-react";
-import {VerifyOtp, verifyOtpSchema} from "@/validators/verify-otp";
+import {VerifyOtpSchema, verifyOtpSchema} from "@/validators/verify-otp";
 import Cookies from 'js-cookie';
+import {apiClient} from "@/lib/axios/api-client";
 
 export function VerifyOtpForm(){
 
     const router = useRouter();
+    const searchParam  =useSearchParams();
     const [showToast, setShowToast] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,7 +22,7 @@ export function VerifyOtpForm(){
       register,
       handleSubmit,
       formState: {errors, dirtyFields}
-    } = useForm<VerifyOtp>({
+    } = useForm<VerifyOtpSchema>({
         resolver: zodResolver(verifyOtpSchema),
         mode: 'onChange',
         defaultValues: {
@@ -28,9 +30,13 @@ export function VerifyOtpForm(){
         }
     });
 
-    const onSubmit = async () => {
+    const onSubmit = async (data: VerifyOtpSchema) => {
         setIsSubmitting(true);
-
+        const userId = searchParam.get("userId");
+        await apiClient.post('/auth/verify-otp', {
+            otp: data.otp,
+            userId
+        })
         Cookies.remove("registration_intent\", { path: \"/\" }")
         await new Promise((r) => setTimeout(r, 1800));
         setShowToast(true);
@@ -71,7 +77,7 @@ export function VerifyOtpForm(){
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0"
+                    className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0 hover:cursor-pointer"
                 >
                     {isSubmitting ? (
                         <>
