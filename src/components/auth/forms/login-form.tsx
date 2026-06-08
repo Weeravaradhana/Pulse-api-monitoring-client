@@ -8,12 +8,16 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {SuccessToast} from "@/components/auth/success-toast";
 import {FormField} from "@/components/auth/form-field";
 import {Loader2, Lock, Mail} from "lucide-react";
+import {apiClient} from "@/lib/axios/api-client";
+import {AxiosError} from "axios";
+import {ApiErrorResponse} from "@/types/api-response";
 
 export function LoginForm(){
 
     const router = useRouter();
     const [showToast, setShowToast] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
 
     const {
       register,
@@ -28,11 +32,33 @@ export function LoginForm(){
         }
     });
 
-    const onSubmit = async () => {
+    const onSubmit = async (data: LoginSchema) => {
         setIsSubmitting(true);
-        await new Promise((r) => setTimeout(r, 1800));
-        setShowToast(true);
-        setTimeout(() => router.push("/dashboard"), 2200);
+
+        try {
+            const response = await apiClient.post('/auth/login', {
+                email: data.email,
+                password: data.password
+            });
+            if (response.status === 201 || response.status === 200){
+                setShowToast(true);
+                setTimeout(() => router.push(`/dashboard`), 2200);
+            }
+        }catch (error: unknown){
+            if (error instanceof AxiosError && error.response){
+                const errorData = error.response.data as ApiErrorResponse;
+
+                if (error.response.status === 404){
+                    setError("Email not found.Please register.");
+                }else {
+                    const serverMessage = Array.isArray(errorData.message)
+                        ? errorData.message[0]
+                        : errorData.message;
+
+                    setError(serverMessage ||  "Registration failed. Try again.");
+                }
+            }
+        }
     };
 
 
@@ -80,7 +106,7 @@ export function LoginForm(){
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0"
+                    className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-y-0 hover:cursor-pointer"
                 >
                     {isSubmitting ? (
                         <>
