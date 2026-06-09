@@ -12,9 +12,8 @@ export async function POST(request: NextRequest){
             password
         });
 
-        const {accessToken, user, refreshToken} = backendResponse.data;
+        const {accessToken, user, refreshToken} = backendResponse.data.data;
         const response = NextResponse.json({success: true, user});
-
         setCookie('accessToken', accessToken, {
             req: request,
             res: response,
