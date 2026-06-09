@@ -7,6 +7,11 @@ import { TopHeader } from "@/components/dashboard/top-header";
 import dynamic from "next/dynamic";
 import { MonitorTable } from "@/components/tooltip/monitor-table";
 import { ThemeProvider } from "@/components/dashboard/theme-context";
+import {useRouter} from "next/navigation";
+import {IncidentsSection} from "@/components/monitor/details/monitor-header";
+import axios from "axios";
+import { useQuery} from "@tanstack/react-query";
+
 
 const KpiCards = dynamic(
     () => import("@/components/dashboard/kip-cards").then((mod) => mod.KpiCards),
@@ -18,6 +23,27 @@ const KpiCards = dynamic(
 
 export default function DashboardPage() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const router = useRouter();
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const { data, isLoading } = useQuery({
+
+        queryKey: ["monitors", page, search],
+        queryFn: async () => {
+            const response = await axios.get(`http://localhost:3000/monitors`, {
+                params: { page, limit: 10, search },
+                withCredentials: true,
+            });
+            console.log("MONITOR RESPONSE ", response.data)
+            return response.data;
+        },
+        placeholderData: (keepPreviousData) => keepPreviousData,
+    });
+    if (isLoading) return <div className="p-6 text-sm">Loading monitors from NestJS...</div>;
+
+    const handleNewMonitor = () => {
+        router.push("/dashboard/monitor/create")
+    }
 
     return (
         <ThemeProvider>
@@ -41,7 +67,7 @@ export default function DashboardPage() {
                                     <span className="text-xs text-slate-400 dark:text-slate-500">Last 7 days</span>
                                 </div>
                             </div>
-                            <button className="flex items-center gap-2 h-9 px-3 sm:px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 shrink-0">
+                            <button onClick={handleNewMonitor} className="flex items-center gap-2 h-9 px-3 sm:px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 rounded-xl text-xs sm:text-sm font-semibold text-white transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 shrink-0">
                                 <Plus className="w-4 h-4" />
                                 <span className="hidden sm:inline">New Monitor</span>
                                 <span className="sm:hidden">New</span>
@@ -50,9 +76,26 @@ export default function DashboardPage() {
                     </main>
                     <div className="ml-3">
                         <KpiCards/>
-                        <MonitorTable/>
+                        <MonitorTable
+                            monitors={data?.data ?? []}
+                            totalCount={data?.total ?? 0}
+                            page={page}
+                            onPageChange={(newPage) => setPage(newPage)}
+                            onSearchChange={(query) => {
+                                setSearch(query);
+                                setPage(1);
+                            }}
+                        />
                     </div>
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+                            <p className="text-xs text-slate-400">Monitor table placeholder</p>
+                        </div>
 
+                       {/* <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 p-4 rounded-2xl shadow-sm">
+                            <IncidentsSection incidents={mockIncidents} />
+                        </div>*/}
+                    </div>
                 </div>
                 <MobileBottomNav/>
             </div>
