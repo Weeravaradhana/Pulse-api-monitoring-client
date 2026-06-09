@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import React from "react";
+import {Providers} from "@/app/providers";
 
 export const metadata: Metadata = {
   title: "UptimeIQ — API Monitoring & Analytics",
@@ -18,7 +19,11 @@ export default function RootLayout({
 }) {
   return (
       <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+      <Providers>
+      {children}
+      </Providers>
+      </body>
       </html>
   );
 }
