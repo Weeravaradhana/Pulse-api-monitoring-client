@@ -8,7 +8,6 @@ import dynamic from "next/dynamic";
 import { MonitorTable } from "@/components/tooltip/monitor-table";
 import { ThemeProvider } from "@/components/dashboard/theme-context";
 import {useRouter} from "next/navigation";
-import {IncidentsSection} from "@/components/monitor/details/monitor-header";
 import axios from "axios";
 import { useQuery} from "@tanstack/react-query";
 
@@ -34,7 +33,7 @@ export default function DashboardPage() {
                 params: { page, limit: 10, search },
                 withCredentials: true,
             });
-            console.log("MONITOR RESPONSE ", response.data)
+
             return response.data;
         },
         placeholderData: (keepPreviousData) => keepPreviousData,
@@ -75,10 +74,13 @@ export default function DashboardPage() {
                         </div>
                     </main>
                     <div className="ml-3">
-                        <KpiCards/>
+                        <div className='p-2'>
+                            <KpiCards/>
+                        </div>
+
                         <MonitorTable
                             monitors={data?.data ?? []}
-                            totalCount={data?.total ?? 0}
+                            totalCount={data?.meta?.totalItems ?? 10}
                             page={page}
                             onPageChange={(newPage) => setPage(newPage)}
                             onSearchChange={(query) => {
