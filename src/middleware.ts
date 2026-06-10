@@ -11,7 +11,7 @@ export function middleware(request: NextRequest){
         }
     }
 
-    if (pathname.startsWith('/dashboard')){
+   if (pathname.startsWith('/dashboard')){
         if (!accessToken){
             return NextResponse.redirect(new URL('/login', request.url));
         }
