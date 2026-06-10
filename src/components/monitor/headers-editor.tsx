@@ -47,7 +47,6 @@ export function HeadersEditor({ control, errors }: HeadersEditorProps) {
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {/* Column labels */}
                     <div className="grid grid-cols-[1fr_1fr_32px] gap-2 px-1">
                         <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Key</span>
                         <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Value</span>
@@ -76,8 +75,6 @@ export function HeadersEditor({ control, errors }: HeadersEditorProps) {
                                     </p>
                                 )}
                             </div>
-
-                            {/* Value */}
                             <div>
                                 <input
                                     {...control.register(`headers.${index}.value`)}
@@ -92,7 +89,6 @@ export function HeadersEditor({ control, errors }: HeadersEditorProps) {
                                 />
                             </div>
 
-                            {/* Remove */}
                             <button
                                 type="button"
                                 onClick={() => remove(index)}
