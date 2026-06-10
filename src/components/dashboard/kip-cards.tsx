@@ -4,11 +4,25 @@ import { Monitor, CheckCircle2, AlertCircle, TrendingUp, ArrowUpRight, ArrowDown
 import { BarChart, Bar, AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import { useTheme } from "@/components/dashboard/theme-context";
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const totalMonitorData  = [{ v:18 },{ v:20 },{ v:21 },{ v:22 },{ v:21 },{ v:23 },{ v:24 }];
-const activeMonitorData = [{ v:19 },{ v:20 },{ v:19 },{ v:21 },{ v:20 },{ v:21 },{ v:21 }];
-const downMonitorData   = [{ v:1  },{ v:2  },{ v:1  },{ v:4  },{ v:3  },{ v:2  },{ v:3   }];
-const uptimeData        = [{ v:99.68 },{ v:99.71 },{ v:99.69 },{ v:99.74 },{ v:99.70 },{ v:99.72 },{ v:99.72 }];
+interface ChartDataPoint {
+    v: number;
+}
+
+interface KpiDetail {
+    currentValue: string | number;
+    delta: string;
+    deltaPositive: boolean;
+    chartData: ChartDataPoint[];
+}
+
+interface ApiResponse {
+    totalMonitors: KpiDetail;
+    activeMonitors: KpiDetail;
+    downMonitors: KpiDetail;
+    averageUptime: KpiDetail;
+}
 
 interface KpiCardProps {
     title: string;
@@ -49,9 +63,29 @@ function KpiCard({ title, value, delta, deltaPositive, icon, iconBg, chart }: Kp
 export function KpiCards() {
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [analyticsData, setAnalyticsData] = useState<ApiResponse | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setMounted(true);
+        const fetchKpiData = async () => {
+            try {
+                const response = await axios.get<ApiResponse>(
+                    "http://localhost:3000/monitors/analytics/kpi",
+                    { withCredentials: true }
+                );
+
+                console.log("RESPONSE FOR ANAYLIS", response)
+                setAnalyticsData(response.data);
+            } catch (error) {
+                console.error("Failed to load KPI analytics", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchKpiData();
+
     }, []);
 
     const tooltipStyle = {
@@ -62,19 +96,25 @@ export function KpiCards() {
         color: theme === "dark" ? "#cbd5e1" : "#475569",
     };
 
-    if (!mounted) {
-        return <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 h-32 bg-slate-100/50 dark:bg-slate-900/50  rounded-xl animate-pulse" />;
+    if (!mounted || loading || !analyticsData) {
+        return (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-32 bg-slate-100 dark:bg-slate-800/50 rounded-xl animate-pulse" />
+                ))}
+            </div>
+        );
     }
 
     return (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <KpiCard
-                title="Total Monitors" value={24} delta="+2" deltaPositive
+                title="Total Monitors" value={analyticsData.totalMonitors.currentValue} delta={analyticsData.totalMonitors.delta} deltaPositive={analyticsData.totalMonitors.deltaPositive}
                 iconBg="bg-indigo-500/10 dark:bg-indigo-500/15"
                 icon={<Monitor className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />}
                 chart={
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={totalMonitorData} barSize={5}>
+                        <BarChart data={analyticsData.totalMonitors.chartData} barSize={5}>
                             <Bar dataKey="v" fill="#6366f1" radius={[2,2,0,0]} />
                             <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "transparent" }} />
                         </BarChart>
@@ -82,12 +122,12 @@ export function KpiCards() {
                 }
             />
             <KpiCard
-                title="Active Monitors" value={21} delta="+1" deltaPositive
+                title="Active Monitors" value={analyticsData.activeMonitors.currentValue} delta={analyticsData.activeMonitors.delta} deltaPositive={analyticsData.activeMonitors.deltaPositive}
                 iconBg="bg-emerald-500/10 dark:bg-emerald-500/15"
                 icon={<CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />}
                 chart={
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={activeMonitorData}>
+                        <AreaChart data={analyticsData.activeMonitors.chartData}>
                             <defs>
                                 <linearGradient id="activeGrad" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
@@ -101,12 +141,12 @@ export function KpiCards() {
                 }
             />
             <KpiCard
-                title="Down Monitors" value={3} delta="-1" deltaPositive={false}
+                title="Down Monitors" value={analyticsData.downMonitors.currentValue} delta={analyticsData.downMonitors.delta} deltaPositive={analyticsData.downMonitors.deltaPositive}
                 iconBg="bg-rose-500/10 dark:bg-rose-500/15"
                 icon={<AlertCircle className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                 chart={
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={downMonitorData} barSize={5}>
+                        <BarChart data={analyticsData.downMonitors.chartData} barSize={5}>
                             <Bar dataKey="v" fill="#f43f5e" radius={[2,2,0,0]} />
                             <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "transparent" }} />
                         </BarChart>
@@ -114,12 +154,12 @@ export function KpiCards() {
                 }
             />
             <KpiCard
-                title="Average Uptime" value="99.72%" delta="+0.04%" deltaPositive
+                title="Average Uptime" value={analyticsData.averageUptime.currentValue} delta={analyticsData.averageUptime.delta} deltaPositive={analyticsData.averageUptime.deltaPositive}
                 iconBg="bg-cyan-500/10 dark:bg-cyan-500/15"
                 icon={<TrendingUp className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />}
                 chart={
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={uptimeData}>
+                        <AreaChart data={analyticsData.averageUptime.chartData}>
                             <defs>
                                 <linearGradient id="uptimeGrad" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
