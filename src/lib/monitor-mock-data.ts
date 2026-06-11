@@ -40,79 +40,40 @@ export interface MonitorDetail {
     incidents: Incident[];
 }
 
-function generateResponseHistory() {
-    const now = new Date();
-    return Array.from({ length: 48 }, (_, i) => {
-        const d = new Date(now.getTime() - (47 - i) * 30 * 60 * 1000);
-        const hour   = d.getHours().toString().padStart(2, "0");
-        const minute = d.getMinutes().toString().padStart(2, "0");
-        const isDown = i === 18 || i === 19;
-        return {
-            time:   `${hour}:${minute}`,
-            ms:     isDown ? 0 : Math.floor(180 + Math.sin(i * 0.4) * 60 + Math.random() * 80),
-            status: isDown ? ("down" as const) : ("up" as const),
-        };
-    });
-}
 
-function generateUptimeHistory() {
-    return Array.from({ length: 30 }, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (29 - i));
-        const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        return { date: label, uptime: i === 10 ? 91.2 : 99.5 + Math.random() * 0.5 };
-    });
-}
 
-function generateRecentChecks(): CheckResult[] {
-    const now = new Date();
-    return Array.from({ length: 20 }, (_, i) => {
-        const d = new Date(now.getTime() - i * 60 * 1000);
-        const isDown = i === 3 || i === 4;
-        return {
-            id:           `chk-${i}`,
-            timestamp:    d.toISOString(),
-            responseTime: isDown ? 0   : Math.floor(160 + Math.random() * 160),
-            statusCode:   isDown ? 503 : 200,
-            status:       isDown ? "down" : "up",
-        };
-    });
-}
+export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-export const MOCK_MONITOR: MonitorDetail = {
-    id:               "mon-001",
-    name:             "Core Authentication API",
-    url:              "https://api.example.com/v2/auth/health",
-    method:           "GET",
-    interval:         60,
-    timeout:          30,
-    status:           "operational",
-    lastCheckedAt:    new Date(Date.now() - 18 * 1000).toISOString(),
-    uptimeLast30d:    99.98,
-    avgResponseTime:  245,
-    totalChecks:      43200,
-    lastIncident:     "2 days ago",
-    responseTimeHistory: generateResponseHistory(),
-    uptimeHistory:       generateUptimeHistory(),
-    recentChecks:        generateRecentChecks(),
-    incidents: [
-        {
-            id: "inc-001",
-            startedAt:    new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            resolvedAt:   new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 9 * 60 * 1000).toISOString(),
-            duration:     "9 minutes",
-            cause:        "HTTP 503 — Service Unavailable (upstream timeout)",
-            severity:     "critical",
-            affectedChecks: 9,
-        },
-        {
-            id: "inc-002",
-            startedAt:    new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
-            resolvedAt:   new Date(Date.now() - 8 * 24 * 60 * 60 * 1000 + 3 * 60 * 1000).toISOString(),
-            duration:     "3 minutes",
-            cause:        "Response time exceeded timeout threshold (>30s)",
-            severity:     "warning",
-            affectedChecks: 3,
-        },
-    ],
-};
+
+export const downtimeTimeline = DAYS.map((day, i) => ({
+    day,
+    min: [1.2, 2.8, 0.5, 0, 1.8, 0.3, 0.9][i],
+}));
+
+
+export const INCIDENTS = [
+    {
+        id: 1,
+        title: "Database connection pool exhausted",
+        severity: "Critical",
+        severityColor: "bg-rose-500/20 text-rose-400 border-rose-500/30",
+        iconBg: "bg-rose-500/10",
+        iconColor: "text-rose-400",
+        desc: "Requests timed out causing 503 responses across the API gateway.",
+        time: "Wed, 03:14 UTC",
+        duration: "4m 12s",
+        cause: "Resource limit",
+    },
+    {
+        id: 2,
+        title: "Elevated latency on edge nodes",
+        severity: "Warning",
+        severityColor: "bg-amber-400/20 text-amber-400 border-amber-400/30",
+        iconBg: "bg-amber-400/10",
+        iconColor: "text-amber-400",
+        desc: "Response times briefly spiked above 400ms during peak traffic.",
+        time: "Mon, 19:02 UTC",
+        duration: "1m 03s",
+        cause: "Network congestion",
+    },
+];
