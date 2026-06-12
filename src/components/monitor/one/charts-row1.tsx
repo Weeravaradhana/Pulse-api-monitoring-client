@@ -42,8 +42,8 @@ function ChartLabel({ title, sub }: { title: string; sub: string }) {
     );
 }
 
-// 📊 1. Response Time Trend Chart Component
-export function ResponseTimeTrendChart({data }: Props) {
+
+export function ResponseTimeTrendChart({ data }: Props) {
     return (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-colors">
             <ChartLabel
@@ -51,7 +51,6 @@ export function ResponseTimeTrendChart({data }: Props) {
                 sub="Latency in ms over the selected period"
             />
             <ResponsiveContainer width="100%" height={160}>
-                {/* 📌 පිටතින් ලැබෙන chartData Array එක මෙතනට දෙනවා */}
                 <LineChart
                     data={data}
                     margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
@@ -64,14 +63,14 @@ export function ResponseTimeTrendChart({data }: Props) {
                     </defs>
 
                     <XAxis dataKey="day" tick={AXIS_TICK} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, "auto"]} tick={AXIS_TICK} axisLine={false} tickLine={false} />
+                    <YAxis domain={["auto", "auto"]} tick={AXIS_TICK} axisLine={false} tickLine={false} />
                     <Tooltip
                         contentStyle={TT_STYLE}
                         formatter={(v: number) => [`${v}ms`, "Response"]}
                     />
                     <Line
                         type="monotone"
-                        dataKey="ms" // NestJS එකෙන් එන key එක
+                        dataKey="ms"
                         stroke="url(#rtLine)"
                         strokeWidth={2.5}
                         dot={false}
@@ -83,7 +82,7 @@ export function ResponseTimeTrendChart({data }: Props) {
     );
 }
 
-export function UptimeOverTimeChart({data}: Props) {
+export function UptimeOverTimeChart({ data }: Props) {
     return (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-colors">
             <ChartLabel
@@ -91,7 +90,6 @@ export function UptimeOverTimeChart({data}: Props) {
                 sub="Percentage availability per day"
             />
             <ResponsiveContainer width="100%" height={160}>
-                {/* 📌 පිටතින් ලැබෙන chartData Array එක මෙතනට දෙනවා */}
                 <AreaChart
                     data={data}
                     margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
