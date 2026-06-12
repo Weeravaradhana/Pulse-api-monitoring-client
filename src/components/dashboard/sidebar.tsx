@@ -1,10 +1,9 @@
 "use client";
 
 import {
-    Activity,
+    Activity, BellIcon,
     LayoutDashboard,
     Radio,
-    BarChart2,
     Settings,
     X,
 } from "lucide-react";
@@ -16,8 +15,8 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/monitors", label: "Monitors", icon: Radio },
-    { href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
+    { href: "/dashboard/monitor/analytics", label: "Monitors", icon: Radio },
+    { href: "/dashboard/notification", label: "Notification", icon: BellIcon },
     { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -31,7 +30,6 @@ function NavContent({
 }) {
     return (
         <>
-            {/* Brand */}
             <div className="flex items-center justify-between gap-2 pt-5 pb-5 border-b border-slate-200 dark:border-slate-800 px-4">
                 <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 bg-linear-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -79,7 +77,6 @@ function NavContent({
                 })}
             </nav>
 
-            {/* User */}
             <div className="p-3 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-full bg-linear-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-xs font-bold text-white">

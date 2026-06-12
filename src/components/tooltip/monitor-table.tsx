@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
     Search, SlidersHorizontal, Layers,
     ExternalLink, Edit2, Trash2,
@@ -50,16 +51,19 @@ function ResponseTime({ value }: { value: number | null }) {
     return <span className={`font-semibold text-xs ${color}`}>{value}ms</span>;
 }
 
-function MonitorCard({ monitor, selected, onSelect }: { monitor: Monitor; selected: boolean; onSelect: () => void }) {
+function MonitorCard({ monitor, selected, onSelect, onClick }: { monitor: Monitor; selected: boolean; onSelect: () => void; onClick: () => void }) {
     return (
-        <div className={cn(
-            "border rounded-xl p-4 transition-all duration-200",
-            selected
-                ? "border-indigo-400/40 bg-indigo-50 dark:bg-indigo-500/5"
-                : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700"
-        )}>
+        <div
+            onClick={onClick}
+            className={cn(
+                "border rounded-xl p-4 transition-all duration-200 cursor-pointer",
+                selected
+                    ? "border-indigo-400/40 bg-indigo-50 dark:bg-indigo-500/5"
+                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700"
+            )}
+        >
             <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="flex items-start gap-2.5 min-w-0">
+                <div className="flex items-start gap-2.5 min-w-0" onClick={(e) => e.stopPropagation()}>
                     <input
                         type="checkbox" checked={selected} onChange={onSelect}
                         className="mt-0.5 w-3.5 h-3.5 accent-indigo-600 cursor-pointer shrink-0"
@@ -90,17 +94,23 @@ const toolbarBtn = "flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs font
     "hover:border-slate-300 dark:hover:border-slate-600";
 
 export function MonitorTable({ monitors, totalCount, page, onPageChange, onSearchChange }: MonitorTableProps) {
+    const router = useRouter();
     const [search, setSearch] = useState("");
     const [selected, setSelected] = useState<string[]>([]);
     const [hovered, setHovered] = useState<string | null>(null);
 
-    const allSelected = (monitors?.length ?? 0) > 0 && selected.length === monitors?.length;    const toggleAll = () => setSelected(allSelected ? [] : monitors.map((m) => m.id));
+    const allSelected = (monitors?.length ?? 0) > 0 && selected.length === monitors?.length;
+    const toggleAll = () => setSelected(allSelected ? [] : monitors.map((m) => m.id));
     const toggleOne = (id: string) =>
         setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
     const handleSearch = (val: string) => {
         setSearch(val);
         onSearchChange(val);
+    };
+
+    const handleRowClick = (monitorId: string) => {
+        router.push(`dashboard/monitor/analytics/${monitorId}`);
     };
 
     const totalPages = Math.ceil(totalCount / 10) || 1;
@@ -145,13 +155,14 @@ export function MonitorTable({ monitors, totalCount, page, onPageChange, onSearc
                             key={monitor.id}
                             onMouseEnter={() => setHovered(monitor.id)}
                             onMouseLeave={() => setHovered(null)}
+                            onClick={() => handleRowClick(monitor.id)} // 📌 4. මුළු Row එකම Clickable කිරීම
                             className={cn(
-                                "border-b border-slate-100 dark:border-slate-800/60 transition-colors h-11",
+                                "border-b border-slate-100 dark:border-slate-800/60 transition-colors h-11 cursor-pointer", // cursor-pointer ඇතුළත් කරා
                                 hovered === monitor.id ? "bg-slate-50 dark:bg-slate-800/40" : "",
                                 selected.includes(monitor.id) ? "bg-indigo-50/50 dark:bg-indigo-500/5" : ""
                             )}
                         >
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
                                 <input type="checkbox" checked={selected.includes(monitor.id)} onChange={() => toggleOne(monitor.id)} className="w-3.5 h-3.5 accent-indigo-600 cursor-pointer" />
                             </td>
                             <td className="px-3 py-2 font-semibold text-slate-800 dark:text-slate-200">{monitor.name}</td>
@@ -161,9 +172,10 @@ export function MonitorTable({ monitors, totalCount, page, onPageChange, onSearc
                             <td className="px-3 py-2 text-slate-400 dark:text-slate-500">{monitor.updatedAt}</td>
                             <td className="px-3 py-2"><ResponseTime value={monitor.timeout} /></td>
 
-                            <td className="px-3 py-2 pr-6 text-right">
+                            <td className="px-3 py-2 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
                                 <div className={cn("flex items-center justify-end gap-1.5 transition-opacity duration-150", hovered === monitor.id ? "opacity-100" : "opacity-0")}>
-                                    <button className="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"><ExternalLink className="w-3 h-3" /></button>
+                                    {/* 📌 External Link බටන් එක ක්ලික් කරත් පේජ් එකට යාම */}
+                                    <button onClick={() => handleRowClick(monitor.id)} className="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"><ExternalLink className="w-3 h-3" /></button>
                                     <button className="p-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"><Edit2 className="w-3 h-3" /></button>
                                     <button className="p-1 rounded bg-rose-50 dark:bg-rose-950 text-rose-400 hover:text-rose-600"><Trash2 className="w-3 h-3" /></button>
                                 </div>
@@ -177,7 +189,13 @@ export function MonitorTable({ monitors, totalCount, page, onPageChange, onSearc
             <div className="md:hidden">
                 <div className="p-3 space-y-2">
                     {monitors.map((monitor) => (
-                        <MonitorCard key={monitor.id} monitor={monitor} selected={selected.includes(monitor.id)} onSelect={() => toggleOne(monitor.id)} />
+                        <MonitorCard
+                            key={monitor.id}
+                            monitor={monitor}
+                            selected={selected.includes(monitor.id)}
+                            onSelect={() => toggleOne(monitor.id)}
+                            onClick={() => handleRowClick(monitor.id)} // 📌 මොබයිල් ව්‍යුහයටද ඇතුළත් කිරීම
+                        />
                     ))}
                 </div>
             </div>
