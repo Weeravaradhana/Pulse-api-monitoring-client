@@ -2,13 +2,10 @@
 
 import {
     PieChart, Pie, Cell,
-    BarChart, Bar,
-    XAxis, YAxis,Tooltip,
+    Tooltip,
     ResponsiveContainer,
 } from "recharts";
 import React from "react";
-import {downtimeTimeline} from "@/lib/monitor-mock-data";
-
 const TT_STYLE: React.CSSProperties = {
     backgroundColor: "#0f172a",
     border: "1px solid #1e293b",
@@ -18,23 +15,28 @@ const TT_STYLE: React.CSSProperties = {
     padding: "6px 10px",
 };
 
-type SuccessVsFailure = {
+interface ChartDataPoint {
+    day?: string;
+    ms?: number;
+    percentage?: number;
+    name?: string;
+    value?: number;
+    color?:string;
+    status?: string;
+    checkedAt?: string;
+    errorMessage?: string | null;
+}
+
+type SuccessVsFailureProps = {
     data: {
-        name?: string;
-        value?: number;
-        color?: string;
+        name: string;
+        value: number;
     }[];
 };
 
-/*
-const DowntimeTimeline ={
-    data: {day:string, min: number[]}
-}
-*/
-
-
-const AXIS_TICK  = { fontSize: 10, fill: "#475569" };
-
+type Props = {
+    data: ChartDataPoint[];
+};
 
 function ChartLabel({ title, sub }: { title: string; sub: string }) {
     return (
@@ -45,11 +47,17 @@ function ChartLabel({ title, sub }: { title: string; sub: string }) {
     );
 }
 
-export function SuccessVsFailureChart({data}: SuccessVsFailure) {
-    const total = data.reduce((a, b) => a + b.value, 0);
+export function SuccessVsFailureChart({ data }: SuccessVsFailureProps) {
+
+    const COLORS: { [key: string]: string } = {
+        Success: "#10b981",
+        Failure: "#f43f5e",
+    };
+
+    const total = data.reduce((sum, item) => sum + item.value, 0);
 
     return (
-        <div className="bg-white border border-gray-400 rounded-xl p-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4">
             <ChartLabel
                 title="Success vs Failure"
                 sub="Distribution of check outcomes"
@@ -67,7 +75,7 @@ export function SuccessVsFailureChart({data}: SuccessVsFailure) {
                                 strokeWidth={0}
                             >
                                 {data.map((entry) => (
-                                    <Cell key={entry.name} fill={entry.color} />
+                                    <Cell key={entry.name} fill={COLORS[entry.name] || "#64748b"} />
                                 ))}
                             </Pie>
                             <Tooltip contentStyle={TT_STYLE} />
@@ -75,66 +83,71 @@ export function SuccessVsFailureChart({data}: SuccessVsFailure) {
                     </ResponsiveContainer>
                 </div>
 
-                {/* Legend + bars */}
                 <div className="space-y-3 flex-1">
-                    {data.map(({ name, value, color }) => (
-                        <div key={name}>
-                            <div className="flex items-center justify-between mb-1">
-                <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                  <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ background: color }}
-                  />
-                    {name}
-                </span>
-                                <span className="text-xs font-bold text-slate-200">
-                  {value?.toLocaleString()}
-                </span>
+                    {data.map(({ name, value }) => {
+                        const itemColor = COLORS[name] || "#64748b";
+                        const percentage = total > 0 ? (value / total) * 100 : 0;
+
+                        return (
+                            <div key={name}>
+                                <div className="flex items-center justify-between mb-1">
+                                    <span className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                                        <span
+                                            className="w-2 h-2 rounded-full"
+                                            style={{ background: itemColor }}
+                                        />
+                                        {name}
+                                    </span>
+                                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                                        {value.toLocaleString()}
+                                    </span>
+                                </div>
+
+                                <div className="h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${percentage}%`, background: itemColor }}
+                                    />
+                                </div>
                             </div>
-                            <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
-                                <div
-                                    className="h-full rounded-full"
-                                    /*style={value ? { width: `${(value / total) * 100}%`, background: color } : ""}*/
-                                />
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
     );
 }
-
-export function DowntimeTimelineChart() {
+export function DowntimeTimelineChart({ data }: Props) {
     return (
-        <div className="bg-white border border-gray-400 rounded-xl p-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 h-full">
             <ChartLabel
-                title="Downtime Timeline"
-                sub="Minutes of downtime per day"
+                title="Recent Downtime Events"
+                sub="Latest failure logs captured by the engine"
             />
-            <ResponsiveContainer width="100%" height={160}>
-                <BarChart
-                    data={downtimeTimeline}
-                    barSize={18}
-                    margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
-                >
-                    <XAxis dataKey="day" tick={AXIS_TICK} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 4]} tick={AXIS_TICK} axisLine={false} tickLine={false} />
-                    <Tooltip
-                        contentStyle={TT_STYLE}
-                        formatter={(v: number) => [`${v}m`, "Downtime"]}
-                    />
-                    <Bar dataKey="min" radius={[3, 3, 0, 0]}>
-                        {downtimeTimeline.map((entry, i) => (
-                            <Cell
-                                key={i}
-                                fill={entry.min > 0 ? "#f43f5e" : "#1e293b"}
-                                opacity={entry.min > 0 ? 0.9 : 1}
-                            />
-                        ))}
-                    </Bar>
-                </BarChart>
-            </ResponsiveContainer>
+
+            {data.length === 0 ? (
+                <div className="h-35 flex items-center justify-center border border-dashed border-slate-200 dark:border-slate-800 rounded-lg">
+                    <p className="text-xs text-emerald-500 font-medium">✨ No downtime detected in this period</p>
+                </div>
+            ) : (
+                <div className="space-y-2.5 max-h-40 overflow-y-auto pr-1">
+                    {data.map((item, i) => (
+                        <div key={i} className="flex items-start gap-3 p-2 bg-slate-50 dark:bg-slate-950 rounded-lg border border-slate-100 dark:border-slate-850">
+                            <span className="px-1.5 py-0.5 text-[9px] font-bold bg-rose-500/10 text-rose-500 rounded border border-rose-500/20 shrink-0">
+                                {item.status || "DOWN"}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-mono text-slate-700 dark:text-slate-300 truncate">
+                                    {item.errorMessage || "No error message provided"}
+                                </p>
+                                <p className="text-[9px] text-slate-400 mt-0.5">
+                                    {item.checkedAt ? new Date(item.checkedAt).toLocaleString() : ""}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
