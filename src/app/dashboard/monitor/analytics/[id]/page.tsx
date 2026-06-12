@@ -2,7 +2,7 @@
 
 import { Sidebar }             from "@/components/dashboard/sidebar";
 import { TopHeader }           from "@/components/dashboard/top-header";
-import { BreadcrumbRow }       from "@/components/dashboard/breadcrumb-row";
+import BreadcrumbRow       from "@/components/dashboard/breadcrumb-row";
 import {
     ResponseTimeTrendChart,
     UptimeOverTimeChart,
@@ -21,9 +21,9 @@ interface ChartDataPoint {
     day?: string;
     ms?: number;
     percentage?: number;
-    name?: string;
-    value?: number;
-    color?:string;
+    name: string;
+    value: number;
+    color:string;
     status?: string;
     checkedAt?: string;
     errorMessage?: string | null;
@@ -42,6 +42,7 @@ interface MonitorMetrics {
 
 export default function MonitorsPage() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [value, setValue] = useState("24h");
     const params = useParams();
     const monitorId = params.id;
 
@@ -54,9 +55,12 @@ export default function MonitorsPage() {
         const fetchTargetMetrics = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/monitor/${monitorId}/metrics`, {
-                    withCredentials: true
+                    withCredentials: true,
+                    params: {
+                        range: value
+                    }
                 });
-                console.log("RESPONSE", response)
+                console.log("RESPONSE", value)
                 setMonitorMetrics(response.data);
             } catch (error) {
                 console.error("දත්ත ලබා ගැනීමට අපොහොසත් විය:", error);
@@ -66,7 +70,13 @@ export default function MonitorsPage() {
         };
 
         fetchTargetMetrics();
-    }, [monitorId]);
+    }, [monitorId , value]);
+
+    const handleReceive = (data: string) => {
+        const finalValue = data || "24h";
+        console.log("DATA", finalValue);
+        setValue(finalValue);
+    }
 
     return (
         <>
@@ -87,7 +97,9 @@ export default function MonitorsPage() {
                             </p>
                         </div>
 
-                        <BreadcrumbRow />
+                        <BreadcrumbRow
+                            onSend={handleReceive}
+                        />
 
                         {loading ? (
                             <div className="text-sm text-slate-500">Loading metrics...</div>
@@ -102,13 +114,13 @@ export default function MonitorsPage() {
                                     />
                                 </div>
 
-                                {/* 📊 ප්‍රස්ථාර යුගල 2: Success vs Failure & Downtime Timeline */}
+                               
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                     <SuccessVsFailureChart
                                         data={monitorMetrics?.responseTimeData?.charts?.successVsFailure || []}
                                     />
                                     <DowntimeTimelineChart
-                                     /*   chartData={monitorMetrics?.charts?.downtimeTimeline || []}*/
+                                        data={monitorMetrics?.responseTimeData.charts?.downtimeTimeline || []}
                                     />
                                 </div>
                             </>
