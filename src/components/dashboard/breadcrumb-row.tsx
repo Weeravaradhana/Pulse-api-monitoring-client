@@ -7,7 +7,7 @@ function cn(...c: (string | undefined | false)[]) {
     return c.filter(Boolean).join(" ");
 }
 
-export function BreadcrumbRow() {
+function BreadcrumbRow({onSend}: {onSend: (val: string)=> void}) {
     const [range, setRange] = useState("24H");
 
     return (
@@ -22,10 +22,11 @@ export function BreadcrumbRow() {
         </span>
             </div>
             <div className="flex items-center gap-0.5 bg-slate-800 border border-slate-700 rounded-lg p-0.5">
-                {["24H", "7D", "30D"].map((r) => (
+                {["24h", "7d", "30d"].map((r) => (
+
                     <button
                         key={r}
-                        onClick={() => setRange(r)}
+                        onClick={() => onSend((r))}
                         className={cn(
                             "h-6 px-2.5 rounded-md text-[11px] font-semibold transition-all",
                             range === r
@@ -40,3 +41,5 @@ export function BreadcrumbRow() {
         </div>
     );
 }
+
+export default BreadcrumbRow
