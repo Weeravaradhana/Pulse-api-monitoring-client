@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {useRef, useState} from "react";
 import MaintenanceModeCard from "../../../components/notification/maintenance-mode-card";
 import EmailNotificationsCard from "../../../components/notification/email-notifications-card";
 import SlackIntegrationCard from "../../../components/notification/slackIntegration-card";
@@ -8,7 +8,7 @@ import CustomWebhooksCard from "../../../components/notification/custom-webhooks
 import FailureThresholdCard from "../../../components/notification/failure-threshold-card";
 import RecoveryNotificationCard from "../../../components/notification/recovery-notification-card";
 import DeliveryHealthCard from "../../../components/notification/delivery-health-card";
-import Button from "@/components/common/button";
+import {Button} from "@/components/common/button";
 
 export default function AlertingPage() {
     const [maintenance, setMaintenance] = useState(false);
@@ -18,6 +18,8 @@ export default function AlertingPage() {
     const [recoveryEnabled, setRecoveryEnabled] = useState(false);
     const [isMute, setMute] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
 
     const selectOption = (selectedIsMute: boolean) => {
         setMute(selectedIsMute);
@@ -44,10 +46,13 @@ export default function AlertingPage() {
                     </div>
 
                     <div className="w-full sm:w-auto flex justify-end">
-                        <Button label={"save"}/>
+                        <Button variant="secondary" onClick={() => inputRef.current?.click()}>
+                            Save
+                        </Button>
 
 
                     </div>
+
                 </div>
 
                 <MaintenanceModeCard
