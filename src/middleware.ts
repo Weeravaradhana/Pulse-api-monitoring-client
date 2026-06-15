@@ -10,12 +10,12 @@ export function middleware(request: NextRequest){
             return NextResponse.redirect(new URL('/register', request.url));
         }
     }
-
+/*
    if (pathname.startsWith('/dashboard')){
         if (!accessToken){
             return NextResponse.redirect(new URL('/login', request.url));
         }
-    }
+    }*/
 
     if (pathname === '/login' || pathname === '/register'){
         if (accessToken){
