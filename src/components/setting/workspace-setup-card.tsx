@@ -8,6 +8,7 @@ import {useForm} from "react-hook-form";
 import {tenantSchema, TenantSchema} from "@/validators/tenant-create.schema";
 import {zodResolver} from "@hookform/resolvers/zod";
 import axios, {AxiosError} from "axios";
+import {SearchInput} from "@/components/common/search";
 
 export const  WorkspaceSetupCard = ({onTenantCreate}: {onTenantCreate: (id: string) => void}) =>{
     const [apiError, setApiError] = useState<string | null>(null);
@@ -50,7 +51,8 @@ export const  WorkspaceSetupCard = ({onTenantCreate}: {onTenantCreate: (id: stri
 
             if (response){
                 alert('Organization Registered Successfully!');
-                onTenantCreate(response.data.id);
+                console.log(response)
+                onTenantCreate(response.data.data.id);
             }
         }catch (error) {
           if (error instanceof AxiosError){
@@ -68,7 +70,7 @@ export const  WorkspaceSetupCard = ({onTenantCreate}: {onTenantCreate: (id: stri
 
             <h3 className="text-sm font-semibold mb-4">Workspace</h3>
 
-            <div className="space-y-3">
+            <div className="space-y-5">
                 <Input {...register('name')} placeholder={"Tenant name"} onChange={handleNameChange}/>
 
                 <Input
@@ -78,6 +80,12 @@ export const  WorkspaceSetupCard = ({onTenantCreate}: {onTenantCreate: (id: stri
 
                 <Button className="w-full">Save Workspace</Button>
             </div>
+
+            <div className="mt-10 flex gap-5">
+                <SearchInput placeholder="Add members"/>
+                <Button className="w-37.5">Add</Button>
+            </div>
+
 
         </Card>
         </form>
