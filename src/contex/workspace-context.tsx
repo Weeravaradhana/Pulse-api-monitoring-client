@@ -4,9 +4,10 @@ import {
     createContext,
     useContext,
     useState,
-    ReactNode,
+    ReactNode, useEffect,
 } from "react";
 import { useAuth } from "./auth-context";
+import axios from "axios";
 
 export type UserTenant = {
     id: string;
@@ -20,23 +21,6 @@ type WorkspaceContextValue = {
     userTenants: UserTenant[];
 };
 
-const DEFAULT_TENANTS: UserTenant[] = [
-    {
-        id: "tenant-uuid-1234",
-        name: "Travel-Ease Global",
-        role: "Owner/Admin",
-    },
-    {
-        id: "tenant-uuid-5678",
-        name: "Activity-Hub Corp",
-        role: "Viewer",
-    },
-    {
-        id: "tenant-uuid-9999",
-        name: "DriveOn School",
-        role: "Member",
-    },
-];
 
 const WorkspaceContext = createContext<WorkspaceContextValue>({
     currentTenantId: null,
@@ -54,9 +38,26 @@ export function WorkspaceProvider({
     children: ReactNode;
 }) {
     const { currentUserTenantId } = useAuth();
-    const [selectedTenantId, setSelectedTenantId] = useState<
-        string | null
-    >(null);
+    const [userTenants, setUserTenants] = useState<UserTenant[]>([]);
+    const [selectedTenantId, setSelectedTenantId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTenants = async () => {
+            try {
+                setLoading(true)
+                const response = await axios.get("http://localhost:3000/tenant/list", {withCredentials: true});
+                setUserTenants(response.data)
+            }catch (error){
+                console.error("Failed to fetch tenants:", error);
+            }finally {
+                setLoading(false)
+            }
+        }
+
+        fetchTenants()
+    }, []);
+
     const currentTenantId =
         selectedTenantId ?? currentUserTenantId ?? null;
 
@@ -65,7 +66,7 @@ export function WorkspaceProvider({
             value={{
                 currentTenantId,
                 setCurrentTenantId: setSelectedTenantId,
-                userTenants: DEFAULT_TENANTS,
+                userTenants,
             }}
         >
             {children}
