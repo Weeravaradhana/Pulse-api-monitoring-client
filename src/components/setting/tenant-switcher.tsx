@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { apiClient } from "@/lib/axios/api-client";
+import axios from "axios";
 
 interface Tenant {
     id: string;
@@ -25,8 +25,8 @@ export function TenantSwitcher({ currentTenantId, userTenants }: Props) {
         setError(null);
 
         try {
-            await apiClient.post("/auth/switch-tenant", { tenantId });
-            window.location.reload();
+          await axios.post("http://localhost:3000/auth/switch-tenant", { tenantId },{withCredentials: true});
+          window.location.reload();
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to switch workspace. Try again.");
         } finally {
