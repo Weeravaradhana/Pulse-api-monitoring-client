@@ -1,14 +1,12 @@
-"use client";
+import {createContext, ReactNode, useContext, useEffect, useRef, useState} from "react";
+import {io, Socket} from "socket.io-client";
 
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
-import { io, Socket } from "socket.io-client";
-
-type PresenceContextValue = {
+export type PresenceContextValue = {
     onlineIds: Set<string>;
     isConnected: boolean;
 };
 
-const PresenceContext = createContext<PresenceContextValue>({
+export const PresenceContext = createContext<PresenceContextValue>({
     onlineIds: new Set(),
     isConnected: false,
 });
@@ -23,7 +21,7 @@ type Props = {
     children: ReactNode;
 };
 
-export function PresenceProvider({ workspaceId, currentUserId, children }: Props) {
+function PresenceProvider({ workspaceId, currentUserId, children }: Props) {
     const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set());
     const [isConnected, setIsConnected] = useState(false);
     const socketRef = useRef<Socket | null>(null);
@@ -34,20 +32,33 @@ export function PresenceProvider({ workspaceId, currentUserId, children }: Props
         const socket = io(`${process.env.NEXT_PUBLIC_API_URL}/presence`, {
             query: { userId: currentUserId, tenantId: workspaceId },
             transports: ["websocket"],
+            forceNew: true,
         });
+
         socketRef.current = socket;
 
         socket.on("connect", () => setIsConnected(true));
-        socket.on("disconnect", () => setIsConnected(false));
+        socket.on("disconnect", () => {
+            setIsConnected(false);
+            setOnlineIds(new Set());
+        });
+
         socket.on("init_online_users", (ids: string[]) => {
             setOnlineIds(new Set(ids));
         });
 
+        socket.on("user_status_changed", (data: { userId: string; isOnline: boolean }) => {
+            setOnlineIds((prev) => {
+                const next = new Set(prev);
+                if (data.isOnline) next.add(data.userId);
+                else next.delete(data.userId);
+                return next;
+            });
+        });
+
         return () => {
-            socket.off("connect");
-            socket.off("disconnect");
-            socket.off("init_online_users");
             socket.disconnect();
+            socket.offAny();
             socketRef.current = null;
         };
 
@@ -59,3 +70,5 @@ export function PresenceProvider({ workspaceId, currentUserId, children }: Props
         </PresenceContext.Provider>
     );
 }
+
+export default PresenceProvider
