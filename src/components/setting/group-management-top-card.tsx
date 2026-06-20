@@ -1,106 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { usePresence } from "@/providers/PresenceProvide";
 
-type Role = "Owner/Admin" | "Member" | "Viewer";
+type Role = "OWNER" | "MEMBER" | "VIEWER";
 
 interface TeamMember {
-    name: string;
+    id: string;
+    name: string | null;
     email: string;
     role: Role;
-    isOnline: boolean;
 }
 
-const DATA: TeamMember[] = [
-    /* { name: "Kasun Perera", email: "kasun@travelease.com", role: "Owner/Admin", isOnline: true },
-    { name: "Nimal Silva", email: "nimal@travelease.com", role: "Member", isOnline: false },
-     { name: "Dilshan Silva", email: "dilshan1@travelease.com", role: "Viewer", isOnline: true },
-     { name: "Dilshan Silva", email: "dilshan2@travelease.com", role: "Viewer", isOnline: true },
-     { name: "Dilshan Silva", email: "dilshan3@travelease.com", role: "Viewer", isOnline: true },
-     { name: "Dilshan Silva", email: "dilshan4@travelease.com", role: "Viewer", isOnline: true },
-     { name: "Dilshan Silva", email: "dilshan5@travelease.com", role: "Viewer", isOnline: true },
-     { name: "Dilshan Silva", email: "dilshan6@travelease.com", role: "Viewer", isOnline: true },
-     { name: "Dilshan Silva", email: "dilshan7@travelease.com", role: "Viewer", isOnline: true },*/
-];
-
 type Props = {
-    id: string;
+    workspaceId: string;
 };
 
-export function TeamManagement({ id }: Props) {
-    const [members, setMembers] = useState<TeamMember[]>(DATA);
+export function TeamManagement({ workspaceId }: Props) {
+    const [members, setMembers] = useState<TeamMember[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const { onlineIds } = usePresence();
 
-    const updateRole = (index: number, role: Role) => {
-        const copy = [...members];
-        copy[index].role = role;
-        setMembers(copy);
+    useEffect(() => {
+        const fetchMembers = async () => {
+            setIsLoading(true);
+            try {
+                const response = await axios.get<TeamMember[]>(
+                    `${process.env.NEXT_PUBLIC_API_URL}/workspaces/${workspaceId}/members`
+                );
+                setMembers(response.data || []);
+            } catch (err: any) {
+                console.error("Failed to load team members:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (workspaceId) fetchMembers();
+    }, [workspaceId]);
+
+    const getInitials = (name: string | null, email: string) => {
+        const fallback = email ? email[0].toUpperCase() : "U";
+        if (!name || typeof name !== "string") return fallback;
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 0 || parts[0] === "") return fallback;
+        return parts.map(n => n[0]).join("").toUpperCase().slice(0, 2);
     };
 
+    const onlineCount = members.filter((m) => onlineIds.has(m.id)).length;
+
     return (
-        <div className="rounded-xl border border-slate-200 bg-white sm:p-6 shadow-sm">
-            <div className="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold text-slate-900">Team Access & Management</h3>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                            {members.length} Total
+        <div className="w-full h-[380px] rounded-xl bg-white p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col">
+            <div className="mb-4 shrink-0">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-slate-900">Team Members</h3>
+                    {!isLoading && (
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-600">
+                            {onlineCount} Online
                         </span>
-                    </div>
-                    <p className="text-xs text-slate-500">View active organization members, status, and manage permission roles.</p>
+                    )}
                 </div>
             </div>
 
-            { DATA.length === 0 ? "No members available. Start by adding a new member" :
-            <div className="w-full overflow-x-auto overflow-y-auto rounded-lg border border-slate-200 bg-white max-h-62.5 scrollbar-thin">
-                <table className="w-full min-w-150 text-center border-collapse table-fixed sm:table-auto">
-                    <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_0_rgba(226,232,240,1)]">
-                    <tr className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                        <th className="p-4 bg-slate-50 text-left">Member Info</th>
-                        <th className="p-4 bg-slate-50">Status</th>
-                        <th className="p-4 bg-slate-50 text-right">Access Role</th>
-                    </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
-                    {members.map((m, i) => (
-                        <tr key={m.email} className="hover:bg-slate-50/70 transition-colors">
-                            <td className="p-4">
-                                <div className="flex flex-col min-w-0 text-left">
-                                    <span className="font-medium text-slate-900 truncate">{m.name}</span>
-                                    <span className="text-xs text-slate-500 truncate">{m.email}</span>
-                                </div>
-                            </td>
-
-                            <td className="p-4">
-                                {m.isOnline ? (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                            Online
-                                        </span>
-                                ) : (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 border border-slate-200">
-                                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-                                            Offline
-                                        </span>
-                                )}
-                            </td>
-
-                            <td className="p-4 text-right">
-                                <select
-                                    className="h-9 w-full sm:w-40 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:bg-slate-50 cursor-pointer"
-                                    value={m.role}
-                                    onChange={(e) => updateRole(i, e.target.value as Role)}
-                                >
-                                    <option value="Owner/Admin">Owner/Admin</option>
-                                    <option value="Member">Member</option>
-                                    <option value="Viewer">Viewer</option>
-                                </select>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
-            }
+            {isLoading ? (
+                <div className="text-xs text-slate-400">Loading team...</div>
+            ) : (
+                <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                    <table className="w-full text-left table-fixed">
+                        <tbody className="text-xs text-slate-700">
+                        {members.map((m) => {
+                            const isOnline = onlineIds.has(m.id);
+                            return (
+                                <tr key={m.id} className="border-b border-slate-50 last:border-0">
+                                    <td className="py-2.5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 border border-slate-200">
+                                                {getInitials(m.name, m.email)}
+                                                <span
+                                                    className={`absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${
+                                                        isOnline ? "bg-emerald-500" : "bg-slate-300"
+                                                    }`}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col truncate">
+                                                <span className="font-medium text-slate-900 truncate">{m.name || "User"}</span>
+                                                <span className="text-2xs text-slate-400 truncate">{m.email}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 }
