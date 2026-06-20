@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import AuthProvider, { useAuth } from "@/contex/auth-context";
 import { WorkspaceProvider, useWorkspace } from "@/contex/workspace-context";
-import { PresenceProvider } from "@/providers/PresenceProvide";
+import PresenceProvider from "@/providers/PresenceProvide";
 
 function PresenceBridge({ children }: { children: ReactNode }) {
     const { currentUserId, isLoading } = useAuth();
