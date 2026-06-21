@@ -36,7 +36,7 @@ export function LoginForm(){
         setIsSubmitting(true);
 
         try {
-            const response = await apiClient.post('/auth/login', {
+            const response = await apiClient.post(`/auth/login`, {
                 email: data.email,
                 password: data.password
             });

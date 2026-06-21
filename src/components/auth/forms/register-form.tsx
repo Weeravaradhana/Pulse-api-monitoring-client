@@ -57,9 +57,10 @@ export function RegisterForm() {
 
             if (response.status === 201 || response.status === 200){
                 const userId = response.data.data?.userId;
+                const tenantId = response.data.data?.tenantId;
                 Cookies.set("registration_intent", "true", { expires: 1/288, sameSite: "strict" });
                 setShowToast(true);
-                setTimeout(() => router.push(`/verify-otp?userId=${userId}`), 2200);
+                setTimeout(() => router.push(`/verify-otp?userId=${userId}&tenantId=${tenantId}`), 2200);
             }
         }catch (error: unknown){
             if (error instanceof AxiosError && error.response){

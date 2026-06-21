@@ -33,14 +33,14 @@ export function VerifyOtpForm(){
     const onSubmit = async (data: VerifyOtpSchema) => {
         setIsSubmitting(true);
         const userId = searchParam.get("userId");
-        await apiClient.post('/auth/verify-otp', {
+    await apiClient.post('/auth/verify-otp', {
             otp: data.otp,
             userId
         })
         Cookies.remove("registration_intent\", { path: \"/\" }")
         await new Promise((r) => setTimeout(r, 1800));
         setShowToast(true);
-        setTimeout(() => router.push("/login"), 2200);
+        setTimeout(() => router.push(`/login`), 2200);
     };
 
 
