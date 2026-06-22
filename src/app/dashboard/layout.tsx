@@ -1,9 +1,10 @@
 "use client";
-
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import AuthProvider, { useAuth } from "@/contex/auth-context";
 import { WorkspaceProvider, useWorkspace } from "@/contex/workspace-context";
 import PresenceProvider from "@/providers/PresenceProvide";
+import { Sidebar, MobileBottomNav } from "@/components/dashboard/sidebar";
+import { TopHeader } from "@/components/dashboard/top-header";
 
 function PresenceBridge({ children }: { children: ReactNode }) {
     const { currentUserId, isLoading } = useAuth();
@@ -20,11 +21,31 @@ function PresenceBridge({ children }: { children: ReactNode }) {
     );
 }
 
+function DashboardShell({ children }: { children: ReactNode }) {
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+            <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+            <div className="lg:ml-64 flex flex-col min-h-screen">
+                <TopHeader onMenuClick={() => setMobileOpen(true)} />
+                <main className="flex-1 pb-16 lg:pb-0">
+                    {children}
+                </main>
+            </div>
+
+            <MobileBottomNav />
+        </div>
+    );
+}
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
         <AuthProvider>
             <WorkspaceProvider>
-                <PresenceBridge>{children}</PresenceBridge>
+                <PresenceBridge>
+                    <DashboardShell>{children}</DashboardShell>
+                </PresenceBridge>
             </WorkspaceProvider>
         </AuthProvider>
     );
