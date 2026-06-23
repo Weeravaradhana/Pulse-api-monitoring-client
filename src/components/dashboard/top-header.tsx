@@ -84,7 +84,7 @@ export function TopHeader({ onMenuClick }: TopHeaderProps) {
 
 
     return (
-        <header className="h-14 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 px-4 sticky top-0 z-30 transition-colors duration-200"
+        <header className="h-19.25 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 px-4 sticky top-0 z-30 transition-colors duration-200"
         ref={dropdownRef}>
             <button
                 onClick={onMenuClick}
