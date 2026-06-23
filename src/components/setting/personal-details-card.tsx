@@ -18,8 +18,6 @@ export function PersonalDetailsCard() {
         <Card>
 
             <h3 className="text-sm font-semibold mb-4">Profile</h3>
-
-            {/* Avatar */}
             <div className="flex items-center gap-4 mb-4">
                 <div
                     onClick={() => inputRef.current?.click()}
@@ -49,13 +47,11 @@ export function PersonalDetailsCard() {
                 />
             </div>
 
-            {/* Inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                 <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
             </div>
 
-            {/* Email */}
             <div className="relative mb-4">
                 <Input value={email} readOnly className="bg-slate-50" />
                 <span className="absolute right-3 top-2 text-xs text-green-600 flex items-center gap-1">
