@@ -217,7 +217,6 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100">
 
-            {/* Nav */}
             <nav className="sticky top-0 z-50 bg-white/90 dark:bg-slate-950/90 backdrop-blur border-b border-slate-100 dark:border-slate-800">
                 <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -243,8 +242,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </nav>
-
-            {/* Hero */}
             <section className="max-w-3xl mx-auto px-6 pt-16 pb-12 text-center">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 dark:bg-indigo-950 rounded-full text-xs text-indigo-600 dark:text-indigo-400 mb-6">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -268,7 +265,6 @@ export default function HomePage() {
                     </button>
                 </div>
 
-                {/* Monitor preview card */}
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden text-left shadow-sm">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Active monitors</span>
@@ -287,7 +283,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Stats strip */}
             <div className="border-y border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                 <div className="max-w-3xl mx-auto flex divide-x divide-slate-100 dark:divide-slate-800">
                     {STATS.map((s) => (
@@ -296,7 +291,6 @@ export default function HomePage() {
                 </div>
             </div>
 
-            {/* Features */}
             <section className="max-w-3xl mx-auto px-6 py-16">
                 <h2 className="text-2xl font-semibold text-center text-slate-800 dark:text-slate-100 mb-2">
                     Everything you need to stay online
@@ -317,7 +311,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Incident feed */}
             <section className="max-w-3xl mx-auto px-6 pb-16">
                 <p className="text-[11px] text-slate-400 uppercase tracking-widest mb-3">Recent incidents</p>
                 <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl overflow-hidden">
@@ -337,8 +330,6 @@ export default function HomePage() {
                     ))}
                 </div>
             </section>
-
-            {/* CTA strip */}
             <section className="bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 py-14 text-center px-6">
                 <h2 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
                     Start monitoring in 2 minutes
@@ -357,7 +348,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Footer */}
             <footer className="border-t border-slate-100 dark:border-slate-800 py-6">
                 <div className="max-w-3xl mx-auto px-6 flex items-center justify-between">
                     <div className="flex items-center gap-2">

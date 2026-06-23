@@ -19,6 +19,7 @@ import { HttpMethod } from "@/types/monitor.types";
 import { FormField, FormSelect, FormTextarea } from "@/components/common/form-field";
 import { HeadersEditor } from "@/components/monitor/headers-editor";
 import { MonitorSummaryCard } from "@/components/monitor/monitor-summary-card";
+import axios from "axios";
 
 const HTTP_METHODS = Object.values(HttpMethod);
 
@@ -90,11 +91,20 @@ export function CreateMonitorForm() {
 
     const onSubmit = async (data: CreateMonitorFormSchema) => {
         setIsSubmitting(true);
-        const dto = toCreateMonitorDto(data);
-        console.log("Creating monitor:", dto);
-        await new Promise((r) => setTimeout(r, 1800));
-        setSuccess(true);
-        setTimeout(() => router.push("/dashboard"), 1500);
+        try {
+            const dto = toCreateMonitorDto(data);
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/monitors`, dto, {
+                withCredentials: true,
+            });
+
+            setSuccess(true);
+            setTimeout(() => router.push("/dashboard"), 1500);
+        } catch (error) {
+            console.error("Monitor creation failed:", error);
+            alert("Monitor creation failed.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (success) {
