@@ -1,7 +1,5 @@
 "use client";
 
-import { Sidebar }             from "@/components/dashboard/sidebar";
-import { TopHeader }           from "@/components/dashboard/top-header";
 import BreadcrumbRow       from "@/components/dashboard/breadcrumb-row";
 import {
     ResponseTimeTrendChart,
@@ -41,7 +39,6 @@ interface MonitorMetrics {
 }
 
 export default function MonitorsPage() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [value, setValue] = useState("24h");
     const params = useParams();
     const monitorId = params.id;
@@ -63,7 +60,7 @@ export default function MonitorsPage() {
                 console.log("RESPONSE", value)
                 setMonitorMetrics(response.data);
             } catch (error) {
-                console.error("දත්ත ලබා ගැනීමට අපොහොසත් විය:", error);
+                console.error("Failed to fetch data:", error);
             } finally {
                 setLoading(false);
             }
@@ -81,13 +78,8 @@ export default function MonitorsPage() {
     return (
         <>
             <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
-                <Sidebar
-                    mobileOpen={mobileMenuOpen}
-                    onClose={() => setMobileMenuOpen(false)}
-                />
 
-                <div className="lg:pl-64 flex flex-col w-full pr-4">
-                    <TopHeader />
+                <div className="flex flex-col w-full pr-4">
 
                     <main className="flex-1 p-5 space-y-5 pb-10">
                         <div>
