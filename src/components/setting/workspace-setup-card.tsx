@@ -176,7 +176,7 @@ export const WorkspaceSetupCard = ({ onTenantCreate }: { onTenantCreate: (id: st
                     <div className="mt-3 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1">
                         {selectedEmails.map((email) => (
                             <div key={email} className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg pl-2 pr-1 py-0.5 text-2xs text-slate-700">
-                                <span className="truncate max-w-[180px] font-medium">{email}</span>
+                                <span className="truncate max-w-45 font-medium">{email}</span>
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveEmail(email)}
