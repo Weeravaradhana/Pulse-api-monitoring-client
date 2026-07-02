@@ -51,7 +51,7 @@ export function TeamManagement({ workspaceId }: Props) {
     const onlineCount = members.filter((m) => onlineIds.has(m.id)).length;
 
     return (
-        <div className="w-full h-[380px] rounded-xl bg-white p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col">
+        <div className="w-full h-95 rounded-xl bg-white p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col">
             <div className="mb-4 shrink-0">
                 <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-slate-900">Team Members</h3>
