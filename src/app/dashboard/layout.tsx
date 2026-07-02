@@ -5,6 +5,7 @@ import { WorkspaceProvider, useWorkspace } from "@/contex/workspace-context";
 import PresenceProvider from "@/providers/PresenceProvide";
 import { Sidebar, MobileBottomNav } from "@/components/dashboard/sidebar";
 import { TopHeader } from "@/components/dashboard/top-header";
+import {NotificationProvider} from "@/contex/notification-context";
 
 function PresenceBridge({ children }: { children: ReactNode }) {
     const { currentUserId, isLoading } = useAuth();
@@ -44,7 +45,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
             <WorkspaceProvider>
                 <PresenceBridge>
+                    <NotificationProvider>
                     <DashboardShell>{children}</DashboardShell>
+                    </NotificationProvider>
                 </PresenceBridge>
             </WorkspaceProvider>
         </AuthProvider>
